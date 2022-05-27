@@ -1,5 +1,5 @@
 import cv2
-#The paths sub-module of imutils includes a function to recursively find images based on a root directory.
+# The paths sub-module of imutils includes a function to recursively find images based on a root directory.
 from imutils import paths
 import face_recognition
 import pickle
@@ -8,17 +8,18 @@ from imutils.video import VideoStream
 from imutils.video import FPS
 import face_recognition
 import imutils
-import time  
+import time
 
-#rasberry pi imports
+# rasberry pi imports
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import requests
 import serial
-import os, time
+import os
+import time
 from tkinter import *
 
-#OLED display Imports
+# OLED display Imports
 import time
 import board
 import busio
@@ -29,19 +30,20 @@ from luma.core.render import canvas
 from luma.oled.device import ssd1306, ssd1309, ssd1325, ssd1331, sh1106, ws0010
 from PIL import ImageFont
 
-#Initial Setup/Declerations
-#GPIO.setmode(GPIO.BOARD)
+# Initial Setup/Declerations
+# GPIO.setmode(GPIO.BOARD)
 port = serial.Serial("/dev/ttyS0", baudrate=9600, timeout=1)
 reader = SimpleMFRC522()
 # Open the camera, 0 is the default camera,
-#1 is the external camera, 2 is the usb camera
-cam = cv2.VideoCapture(0)
-#Enter your name
+# 1 is the external camera, 2 is the usb camera
+cam = cv2.VideoCapture(0)  # -1 for raspberrypi with usb camera
 name = input('Enter your name: ')
 names = []
 
-#OLED DISPLAY, Initialization/Setup
-def oled_disp(text):
+# OLED DISPLAY, Initialization/Setup
+
+
+def oled_disp(text, x, y):
     font = ImageFont.load_default()
     font_mc = ImageFont.truetype('/home/admin/Desktop/scripts/Arialn.ttf', 32)
     font_mcsmall = ImageFont.truetype(
@@ -49,19 +51,21 @@ def oled_disp(text):
     serial = i2c(port=1, address=0x3C)
     device = sh1106(serial)
     x = 0
-    top = 0
+    y = 0
     width = device.width
     height = device.height
     with canvas(device) as draw:
-        draw.text((x, top),  text,  font=font_mcsmall, fill=255)
-#SIM900A
+        draw.text((x, y),  text,  font=font_mcsmall, fill=255)
+# SIM900A
+
+
 def sendMessage(phone):
     port.write(b'AT\r')
     rcv = port.read(10)
     time.sleep(1)
     port.write(b"AT+CMGF=1\r")
     print("Text Mode Enabled…")
-    oled_disp("Text Mode Enabled…")
+    oled_disp("Text Mode Enabled..", 0, 0)
     time.sleep(3)
     a = b'AT+CMGS="'
     b = b'"\r'
@@ -69,53 +73,62 @@ def sendMessage(phone):
     port.write(a+phone+b)
     msg = " xxx Your son/daughter scanned his/her RFID. He/she is now inside the campus. xxx"
     print("sending message….")
-    oled_disp("sending message...")
+    oled_disp("Sending SMS...", 0, 20)
     time.sleep(3)
     port.reset_output_buffer()
     time.sleep(1)
     port.write(str.encode(msg+chr(26)))
     time.sleep(3)
     print("message sent…")
-    oled_disp("message sent…")
+    oled_disp("SMS sent...", 0, 40)
     time.sleep(0.5)
-#datasets
+# datasets
+
+
 def generate_dataset():
     cv2.namedWindow("press space to take a photo", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("press space to take a photo", 500, 400)
 
-    #Initialize the counter
+    # Initialize the counter
     imgCounter = 0
 
-    #create a folder named after the named entered
+    # create a folder named after the named entered
     os.mkdir('dataset/' + name)
 
     while True:
-        #Read the frame, ret is a boolean that checks availability of the frame
+        # Read the frame, ret is a boolean that checks availability of the frame
         ret, frame = cam.read()
         if not ret:
             print("failed to grab frame")
+            oled_disp("Failed to grab frame...", 0, 0)
             break
         cv2.imshow("press space to take a photo", frame)
+        oled_disp("Press SPACE to capture..", 0, 0)
 
-        #Check if the user pressed the spacebar
+        # Check if the user pressed the spacebar
         k = cv2.waitKey(1)
         if k % 256 == 27:
             # ESC pressed
             print("Escape key pressed, closing frame...")
+            oled_disp("ESC pressed; Closing frame..", 0, 20)
             break
         elif k % 256 == 32:
-            #If the user press the space, the image is saved provided by the filename
+            # If the user press the space, the image is saved provided by the filename
             # SPACE pressed
             imgName = "dataset/" + name + "/image_{}.jpg".format(imgCounter)
             cv2.imwrite(imgName, frame)
             print("{} written!".format(imgName))
+            oled_disp("{} written!".format(imgName), 0, 20)
             imgCounter += 1
     cam.release()
     cv2.destroyAllWindows()
-#training model
+# training model
+
+
 def train_model():
     # our images are located in the dataset folder
     print("[!!!] processing faces...")
+    oled_disp("[!!!]Processing faces...", 0, 0)
     imagePaths = list(paths.list_images("dataset"))
 
     # initialize the list of known encodings and known names
@@ -126,7 +139,7 @@ def train_model():
     for (i, imagePath) in enumerate(imagePaths):
         # extract the person name from the image path
         print("[!!!] processing image {}/{}".format(i + 1,
-                                                len(imagePaths)))
+                                                    len(imagePaths)))
         name = imagePath.split(os.path.sep)[-2]
         # print(imagePath)  dataset/<name>/<filename>.jpg
         # print (name) #name mentioned above
@@ -151,16 +164,19 @@ def train_model():
             knownNames.append(name)
 
     # dump the facial encodings + names to disk
-    print("[!!!] serializing encodings...")
+    print("[!!!] Serializing encodings...")
+    oled_disp("[!!!] Serializing encodings...", 0, 20)
     data = {"encodings": knownEncodings, "names": knownNames}
     f = open("encodings.pickle", "wb")
     f.write(pickle.dumps(data))
     f.close()
-#face recognition
+# face recognition
+
+
 def facial_rec():
-    #Initialize 'defaultName' to trigger only when a new person is identified.
+    # Initialize 'defaultName' to trigger only when a new person is identified.
     defaultName = "unknown"
-    #Determine faces from encodings.pickle file model created from train_model.py
+    # Determine faces from encodings.pickle file model created from train_model.py
     encodingsP = "encodings.pickle"
 
     # load the known faces and embeddings along with OpenCV's Haarcascade for face detection
@@ -177,7 +193,7 @@ def facial_rec():
 
     # start the FPS counter
     fps = FPS().start()
-    
+
     # loop over frames from the video file stream
     while True:
         # grab the frame from the threaded video stream and resize it
@@ -188,15 +204,14 @@ def facial_rec():
         boxes = face_recognition.face_locations(frame)
         # compute the facial embeddings for each face bounding box
         encodings = face_recognition.face_encodings(frame, boxes)
-        names = []
         # loop over the facial embeddings
         for encoding in encodings:
             # attempt to match each face in the input image to our known
             # encodings
             matches = face_recognition.compare_faces(data["encodings"],
-                encoding)
-            name = "Unknown" #if face is not recognized, then print Unknown
-
+                                                     encoding)
+            name = "Unknown"  # if face is not recognized, then print Unknown
+            oled_disp("Unknown face", 0, 0)
             # check to see if we have found a match
             if True in matches:
                 # find the indexes of all matched faces then initialize a
@@ -216,10 +231,11 @@ def facial_rec():
                 # will select first entry in the dictionary)
                 name = max(counts, key=counts.get)
 
-                #If someone in your dataset is identified, this then prints name on the screen
+                # If someone in your dataset is identified, this then prints name on the screen
                 if defaultName != name:
                     defaultName = name
                     print(defaultName)
+                    oled_disp("Face Recognized: "+defaultName, 0, 0)
 
             # update the list of names
             names.append(name)
@@ -228,10 +244,10 @@ def facial_rec():
         for ((top, right, bottom, left), name) in zip(boxes, names):
             # draw the predicted face name on the image - color is in BGR
             cv2.rectangle(frame, (left, top), (right, bottom),
-                (0, 255, 225), 2)
+                          (0, 255, 225), 2)
             y = top - 15 if top - 15 > 15 else top + 15
             cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                .8, (0, 255, 255), 2)
+                        .8, (0, 255, 255), 2)
 
         # display the image to our screen
         cv2.imshow("Facial Recognition is Running", frame)
@@ -253,9 +269,4 @@ def facial_rec():
     cv2.destroyAllWindows()
     vs.stop()
 
-
-
-generate_dataset()
-train_model()
-facial_rec()
-
+# Main code here...
