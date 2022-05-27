@@ -102,9 +102,8 @@ def facial_rec():
     # load the known faces and embeddings along with OpenCV's Haarcascade for face detection
     print("[INFO] loading encodings + face detector...")
     data = pickle.loads(open(encodingsP, "rb").read())
-
     # initialize the video stream and allow the camera sensor to warm up
-    # Set the ser to the followng
+    # Set the src to the followng
     # src = 0 : for the build in single web cam, could be your laptop webcam
     # src = 2 : for the USB webcam attached to the Raspberry Pi
 
