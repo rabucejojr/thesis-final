@@ -1,4 +1,5 @@
 import cv2
+from cv2 import VideoCapture
 #The paths sub-module of imutils includes a function to recursively find images based on a root directory.
 from imutils import paths
 import face_recognition
@@ -102,12 +103,13 @@ def facial_rec():
     # load the known faces and embeddings along with OpenCV's Haarcascade for face detection
     print("[INFO] loading encodings + face detector...")
     data = pickle.loads(open(encodingsP, "rb").read())
+
     # initialize the video stream and allow the camera sensor to warm up
-    # Set the src to the followng
+    # Set the ser to the followng
     # src = 0 : for the build in single web cam, could be your laptop webcam
     # src = 2 : for the USB webcam attached to the Raspberry Pi
 
-    vs = VideoStream(src=0,framerate=10).start()
+    vs = VideoStream(src=0, framerate=10).start()
     time.sleep(2.0)
 
     # start the FPS counter
@@ -119,11 +121,11 @@ def facial_rec():
         # to 500px (to speedup processing)
         frame = vs.read()
         frame = imutils.resize(frame, width=500)
-        # Detect the face boxes
+        # Detect the fce boxes
         boxes = face_recognition.face_locations(frame)
         # compute the facial embeddings for each face bounding box
         encodings = face_recognition.face_encodings(frame, boxes)
-        
+        names = []
         # loop over the facial embeddings
         for encoding in encodings:
             # attempt to match each face in the input image to our known
@@ -187,6 +189,8 @@ def facial_rec():
     # do a bit of cleanup
     cv2.destroyAllWindows()
     vs.stop()
+
+
 
 generate_dataset()
 train_model()

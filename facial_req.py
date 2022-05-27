@@ -21,7 +21,7 @@ data = pickle.loads(open(encodingsP, "rb").read())
 # src = 0 : for the build in single web cam, could be your laptop webcam
 # src = 2 : for the USB webcam attached to the Raspberry Pi
 
-vs = VideoStream(src=2,framerate=10).start()
+vs = VideoStream(src=0, framerate=10).start()
 time.sleep(2.0)
 
 # start the FPS counter
