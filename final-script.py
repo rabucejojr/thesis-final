@@ -41,8 +41,6 @@ name = input('Enter your name: ')
 names = []
 
 # OLED DISPLAY, Initialization/Setup
-
-
 def oled_disp(text, x, y):
     font = ImageFont.load_default()
     font_mc = ImageFont.truetype('/home/admin/Desktop/scripts/Arialn.ttf', 32)
@@ -56,9 +54,8 @@ def oled_disp(text, x, y):
     height = device.height
     with canvas(device) as draw:
         draw.text((x, y),  text,  font=font_mcsmall, fill=255)
+
 # SIM900A
-
-
 def sendMessage(phone):
     port.write(b'AT\r')
     rcv = port.read(10)
@@ -82,9 +79,8 @@ def sendMessage(phone):
     print("message sent…")
     oled_disp("SMS sent...", 0, 40)
     time.sleep(0.5)
+
 # datasets
-
-
 def generate_dataset():
     cv2.namedWindow("press space to take a photo", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("press space to take a photo", 500, 400)
@@ -122,9 +118,8 @@ def generate_dataset():
             imgCounter += 1
     cam.release()
     cv2.destroyAllWindows()
+
 # training model
-
-
 def train_model():
     # our images are located in the dataset folder
     print("[!!!] processing faces...")
@@ -170,9 +165,8 @@ def train_model():
     f = open("encodings.pickle", "wb")
     f.write(pickle.dumps(data))
     f.close()
+
 # face recognition
-
-
 def facial_rec():
     # Initialize 'defaultName' to trigger only when a new person is identified.
     defaultName = "unknown"
