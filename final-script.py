@@ -1,15 +1,3 @@
-import cv2
-# The paths sub-module of imutils includes a function to recursively find images based on a root directory.
-from imutils import paths
-import face_recognition
-import pickle
-import os
-from imutils.video import VideoStream
-from imutils.video import FPS
-import face_recognition
-import imutils
-import time
-
 # rasberry pi imports
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
@@ -29,6 +17,18 @@ from luma.core.interface.parallel import bitbang_6800
 from luma.core.render import canvas
 from luma.oled.device import ssd1306, ssd1309, ssd1325, ssd1331, sh1106, ws0010
 from PIL import ImageFont
+
+import cv2
+# The paths sub-module of imutils includes a function to recursively find images based on a root directory.
+from imutils import paths
+import face_recognition
+import pickle
+import os
+from imutils.video import VideoStream
+from imutils.video import FPS
+import face_recognition
+import imutils
+import time
 
 # Initial Setup/Declerations
 # GPIO.setmode(GPIO.BOARD)
