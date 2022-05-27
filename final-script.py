@@ -1,5 +1,4 @@
 import cv2
-from cv2 import VideoCapture
 #The paths sub-module of imutils includes a function to recursively find images based on a root directory.
 from imutils import paths
 import face_recognition
@@ -10,6 +9,7 @@ from imutils.video import FPS
 import face_recognition
 import imutils
 import time  
+
 #rasberry pi imports
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
@@ -18,7 +18,7 @@ import serial
 import os, time
 from tkinter import *
 
-#oled display Imports
+#OLED display Imports
 import time
 import board
 import busio
@@ -29,7 +29,7 @@ from luma.core.render import canvas
 from luma.oled.device import ssd1306, ssd1309, ssd1325, ssd1331, sh1106, ws0010
 from PIL import ImageFont
 
-
+#Initial Setup/Declerations
 #GPIO.setmode(GPIO.BOARD)
 port = serial.Serial("/dev/ttyS0", baudrate=9600, timeout=1)
 reader = SimpleMFRC522()
@@ -54,7 +54,6 @@ def oled_disp(text):
     height = device.height
     with canvas(device) as draw:
         draw.text((x, top),  text,  font=font_mcsmall, fill=255)
-
 #SIM900A
 def sendMessage(phone):
     port.write(b'AT\r')
