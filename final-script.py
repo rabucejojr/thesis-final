@@ -38,6 +38,7 @@ reader = SimpleMFRC522()
 # 1 is the external camera, 2 is the usb camera
 cam = cv2.VideoCapture(0)  # -1 for raspberrypi with usb camera
 name = input('Enter your name: ')
+#array of recognized names
 names = []
 
 # OLED DISPLAY, Initialization/Setup
@@ -230,7 +231,8 @@ def facial_rec():
                     defaultName = name
                     print(defaultName)
                     oled_disp("Face Recognized: "+defaultName, 0, 0)
-
+                    #if face is recognized, then the student can now scan his/her tag
+                    rfid_scan()
             # update the list of names
             names.append(name)
 
@@ -262,5 +264,31 @@ def facial_rec():
     # do a bit of cleanup
     cv2.destroyAllWindows()
     vs.stop()
+
+#RFID
+def rfid_scan():
+    print("Scan your tag...")
+    oled_disp("Scan your tag...")
+    try:
+        id = reader.read()[0]
+        print(id)
+        oled_disp(id, 0, 0)
+        x = requests.get(
+            'http://snnhs-attendance-system.herokuapp.com/api/user/' + str(id))
+        if x.status_code == 404:
+            print("tag not found")
+            oled_disp("unregistered tag...")
+            time.sleep(0.5)
+        else:
+            phone = (x.json()['phone'])
+            phone = '+63'+phone
+            phone = bytes(phone, 'utf-8')
+            y = requests.post(
+                'http://snnhs-attendance-system.herokuapp.com/api/attendance/', data={"rfid": id})
+            sendMessage(phone)
+    finally:
+        #GPIO.setwarnings(False)
+        GPIO.cleanup()
+
 
 # Main code here...
