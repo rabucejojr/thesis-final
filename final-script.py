@@ -272,12 +272,13 @@ def rfid_scan():
     try:
         id = reader.read()[0]
         print(id)
-        oled_disp(id, 0, 0)
+        oled_disp("Tag:"+id, 0, 0)
         x = requests.get(
             'http://snnhs-attendance-system.herokuapp.com/api/user/' + str(id))
         if x.status_code == 404:
             print("tag not found")
-            oled_disp("unregistered tag...")
+            oled_disp("tag not found",0,0)
+            oled_disp("please register...",0,20)
             time.sleep(0.5)
         else:
             phone = (x.json()['phone'])
