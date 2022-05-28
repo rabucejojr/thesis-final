@@ -34,10 +34,7 @@ import time
 # GPIO.setmode(GPIO.BOARD)
 port = serial.Serial("/dev/ttyS0", baudrate=9600, timeout=1)
 reader = SimpleMFRC522()
-# Open the camera, 0 is the default camera,
-# 1 is the external camera, 2 is the usb camera
-cam = cv2.VideoCapture(0)  # -1 for raspberrypi with usb camera
-name = input('Enter your name: ')
+
 #array of recognized names
 names = []
 
@@ -83,6 +80,10 @@ def sendMessage(phone):
 
 # datasets
 def generate_dataset():
+    name = input('Enter your name: ')
+    # Open the camera, 0 is the default camera,
+    # 1 is the external camera, 2 is the usb camera
+    cam = cv2.VideoCapture(0)  # -1 for raspberrypi with usb camera
     cv2.namedWindow("press space to take a photo", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("press space to take a photo", 500, 400)
 
@@ -231,8 +232,10 @@ def facial_rec():
                     defaultName = name
                     print(defaultName)
                     oled_disp("Face Recognized: "+defaultName, 0, 0)
+                    time.sleep(2)
                     #if face is recognized, then the student can now scan his/her tag
                     rfid_scan()
+                    time.sleep(2)
             # update the list of names
             names.append(name)
 
@@ -268,11 +271,11 @@ def facial_rec():
 #RFID
 def rfid_scan():
     print("Scan your tag...")
-    oled_disp("Scan your tag...")
+    oled_disp("Scan your tag...",0,0)
     try:
         id = reader.read()[0]
         print(id)
-        oled_disp("Tag:"+id, 0, 0)
+        oled_disp("Tag:"+str(id), 0, 0)
         x = requests.get(
             'http://snnhs-attendance-system.herokuapp.com/api/user/' + str(id))
         if x.status_code == 404:
@@ -293,3 +296,4 @@ def rfid_scan():
 
 
 # Main code here...
+facial_rec()
