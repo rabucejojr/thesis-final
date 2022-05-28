@@ -6,6 +6,7 @@ import serial
 import os
 import time
 from tkinter import *
+import threading as tr
 
 # OLED display Imports
 import time
