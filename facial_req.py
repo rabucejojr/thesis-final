@@ -69,10 +69,10 @@ while True:
 			if defaultName != name:
 				defaultName = name
 				print(defaultName)
-
+                
 		# update the list of names
 		names.append(name)
-
+        
 	# loop over the recognized faces
 	for ((top, right, bottom, left), name) in zip(boxes, names):
 		# draw the predicted face name on the image - color is in BGR
@@ -81,6 +81,8 @@ while True:
 		y = top - 15 if top - 15 > 15 else top + 15
 		cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
 			.8, (0, 255, 255), 2)
+		name = defaultName
+		time.sleep(3)
 
 	# display the image to our screen
 	cv2.imshow("Facial Recognition is Running", frame)
@@ -90,8 +92,6 @@ while True:
 	if key == ord("q"):
 		break
 
-	# update the FPS counter
-	fps.update()
 
 # stop the timer and display FPS information
 fps.stop()
